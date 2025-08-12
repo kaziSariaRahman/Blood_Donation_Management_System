@@ -1,26 +1,26 @@
-/* ===== Bigger Example Blood Donation KB ===== */
+/* Blood Donation Knowledge Base */
 
-/* Blood groups */
+/* Blood Groups */
 blood_group(osman, o_neg).
 blood_group(rakib, a_pos).
 blood_group(alina, b_pos).
-blood_group(tuku,  ab_pos).
+blood_group(tuku, ab_pos).
 blood_group(farhan, o_pos).
-blood_group(rina,  ab_neg).
+blood_group(rina, ab_neg).
 blood_group(kamal, a_neg).
-blood_group(sumi,  o_pos).
+blood_group(sumi, o_pos).
 blood_group(akash, b_pos).
 blood_group(nadia, ab_pos).
 
 /* Age */
 age(osman, 25).  age(rakib, 32).  age(alina, 40).
-age(tuku,  20).  age(farhan, 28). age(rina,  35).
+age(tuku, 20).   age(farhan, 28). age(rina, 35).
 age(kamal, 45).  age(sumi, 29).   age(akash, 38).
 age(nadia, 27).
 
 /* Weight */
 weight(osman, 60).  weight(rakib, 55).  weight(alina, 70).
-weight(tuku,  55).  weight(farhan, 80). weight(rina,  65).
+weight(tuku, 55).   weight(farhan, 80). weight(rina, 65).
 weight(kamal, 68).  weight(sumi, 50).   weight(akash, 75).
 weight(nadia, 54).
 
@@ -30,17 +30,17 @@ healthy(tuku).  healthy(farhan). healthy(rina).
 healthy(kamal). healthy(sumi).   healthy(akash).
 healthy(nadia).
 
-/* Last donation days */
+/* Last Donation Days (using numeric values) */
 last_donated(osman, 120).
 last_donated(rakib, 95).
-last_donated(alina, never).
-last_donated(tuku,  91).
-last_donated(farhan, 85).  % not eligible (<90)
-last_donated(rina,  never).
-last_donated(kamal, never).
-last_donated(sumi,  140).
+last_donated(alina, 100).
+last_donated(tuku, 91).
+last_donated(farhan, 85).
+last_donated(rina, 180).
+last_donated(kamal, 110).
+last_donated(sumi, 140).
 last_donated(akash, 150).
-last_donated(nadia, never).
+last_donated(nadia, 130).
 
 /* Availability */
 available(osman). available(rakib). available(alina).
@@ -52,20 +52,19 @@ available(nadia).
 location(osman, dhaka).
 location(rakib, dhaka).
 location(alina, narayanganj).
-location(tuku,  chittagong).
+location(tuku, chittagong).
 location(farhan, dhaka).
-location(rina,  narayanganj).
+location(rina, narayanganj).
 location(kamal, dhaka).
-location(sumi,  narayanganj).
+location(sumi, narayanganj).
 location(akash, dhaka).
 location(nadia, chittagong).
 
-/* Blood compatibility */
+/* Blood Compatibility */
 can_donate(o_neg, a_pos).
 can_donate(o_neg, b_pos).
 can_donate(o_neg, ab_pos).
 can_donate(o_neg, o_pos).
-can_donate(o_neg, o_neg).
 can_donate(o_pos, a_pos).
 can_donate(o_pos, b_pos).
 can_donate(o_pos, ab_pos).
@@ -73,29 +72,25 @@ can_donate(o_pos, o_pos).
 can_donate(a_pos, a_pos).
 can_donate(a_pos, ab_pos).
 can_donate(a_neg, a_pos).
-can_donate(a_neg, a_neg).
 can_donate(b_pos, b_pos).
 can_donate(b_pos, ab_pos).
 can_donate(ab_pos, ab_pos).
 can_donate(ab_neg, ab_pos).
-can_donate(ab_neg, ab_neg).
 
-/* === Main Rule === */
+/* === Simplified Eligibility Check === */
 eligible_donor(Receiver, Donor) :-
-  Donor \= Receiver,
-  blood_group(Donor, DBG),
-  blood_group(Receiver, RBG),
-  can_donate(DBG, RBG),
-  age(Donor, A), A >= 18,
-  weight(Donor, W), W >= 50,
-  healthy(Donor),
-  ( last_donated(Donor, never)
-  ; last_donated(Donor, DDays), DDays >= 90 ),
-  available(Donor),
-  location(Donor, L),
-  location(Receiver, L).
+    blood_group(Donor, DBG),
+    blood_group(Receiver, RBG),
+    can_donate(DBG, RBG),
+    age(Donor, A), A >= 18,
+    weight(Donor, W), W >= 50,
+    healthy(Donor),
+    last_donated(Donor, DDays), DDays >= 90,
+    available(Donor),
+    location(Donor, L),
+    location(Receiver, L).
 
-/* === Query Helper (no empty set) === */
+/* === Get List of Eligible Donors for a Receiver === */
 donors_for(Receiver, List) :-
-  findall(D, eligible_donor(Receiver, D), List),
-  List \= [].
+    findall(D, eligible_donor(Receiver, D), TempList),
+    delete(TempList, Receiver, List).  % Remove receiver from the list to avoid self-donation
