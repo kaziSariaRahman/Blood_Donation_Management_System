@@ -12,6 +12,18 @@ blood_group(sumi, o_pos).
 blood_group(akash, b_pos).
 blood_group(nadia, ab_pos).
 
+/* phone numbers */
+phone_number(osman, '01710000001').
+phone_number(rakib, '01710000002').
+phone_number(alina, '01710000003').
+phone_number(tuku, '01710000004').
+phone_number(farhan, '01710000005').
+phone_number(rina, '01710000006').
+phone_number(kamal, '01710000007').
+phone_number(sumi, '01710000008').
+phone_number(akash, '01710000009').
+phone_number(nadia, '01710000010').
+
 /* Age */
 age(osman, 25).  age(rakib, 32).  age(alina, 40).
 age(tuku, 20).   age(farhan, 28). age(rina, 35).
