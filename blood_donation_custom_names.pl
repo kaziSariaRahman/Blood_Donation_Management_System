@@ -12,7 +12,7 @@ blood_group(sumi, o_pos).
 blood_group(akash, b_pos).
 blood_group(nadia, ab_pos).
 
-/* phone numbers */
+/* Phone Numbers */
 phone_number(osman, '01710000001').
 phone_number(rakib, '01710000002').
 phone_number(alina, '01710000003').
@@ -42,7 +42,7 @@ healthy(tuku).  healthy(farhan). healthy(rina).
 healthy(kamal). healthy(sumi).   healthy(akash).
 healthy(nadia).
 
-/* Last Donation Days (using numeric values) */
+/* Last Donation Days */
 last_donated(osman, 120).
 last_donated(rakib, 95).
 last_donated(alina, 100).
@@ -89,7 +89,7 @@ can_donate(b_pos, ab_pos).
 can_donate(ab_pos, ab_pos).
 can_donate(ab_neg, ab_pos).
 
-/* === Simplified Eligibility Check === */
+/* === Eligibility Check === */
 eligible_donor(Receiver, Donor) :-
     blood_group(Donor, DBG),
     blood_group(Receiver, RBG),
@@ -102,7 +102,26 @@ eligible_donor(Receiver, Donor) :-
     location(Donor, L),
     location(Receiver, L).
 
-/* === Get List of Eligible Donors for a Receiver === */
+/* === Recursive way to get eligible donors === */
+
+/* Base case: empty donor list gives empty result */
+
+donors_for_recursive([], _, []).
+
+/* Recursive case: donor is eligible and not receiver */
+
+donors_for_recursive([Donor|Rest], Receiver, [Donor|EligibleRest]) :-
+    eligible_donor(Receiver, Donor),
+    Donor \= Receiver,
+    donors_for_recursive(Rest, Receiver, EligibleRest).
+
+/* Recursive case: donor not eligible or is receiver */
+
+donors_for_recursive([Donor|Rest], Receiver, EligibleRest) :-
+    (\+ eligible_donor(Receiver, Donor) ; Donor = Receiver),
+    donors_for_recursive(Rest, Receiver, EligibleRest).
+
+/* Wrapper predicate to start recursion with all donors */
 donors_for(Receiver, List) :-
-    findall(D, eligible_donor(Receiver, D), TempList),
-    delete(TempList, Receiver, List).  % Remove receiver from the list to avoid self-donation
+    findall(D, blood_group(D, _), AllDonors),
+    donors_for_recursive(AllDonors, Receiver, List).
